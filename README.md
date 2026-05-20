@@ -46,9 +46,13 @@ It handles:
 ### 1. Environment Variables
 
 Set the following in your environment:
+
 ConnectionStrings__Default=YOUR_POSTGRES_CONNECTION
+
 Jwt__Issuer=SchoolPlatform
+
 Jwt__Audience=SchoolPlatformUsers
+
 Jwt__Key=YOUR_SECRET_KEY
 
 ---
