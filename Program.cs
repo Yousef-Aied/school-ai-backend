@@ -58,14 +58,16 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 //app.UseCors("AllowVite");
-app.UseCors("AllowAll");
+app.UseCors("AllowAll"); //AllowVite
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
