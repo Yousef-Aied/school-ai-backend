@@ -46,3 +46,46 @@ It handles:
 ### 1. Environment Variables
 
 Set the following in your environment:
+ConnectionStrings__Default=YOUR_POSTGRES_CONNECTION
+Jwt__Issuer=SchoolPlatform
+Jwt__Audience=SchoolPlatformUsers
+Jwt__Key=YOUR_SECRET_KEY
+
+---
+
+### 2. Database
+
+This project uses PostgreSQL.
+
+Make sure to run migrations:
+dotnet ef database update
+
+---
+
+## Docker
+
+This project is containerized and deployed using Docker on Render.
+
+---
+
+## Deployment
+
+- Platform: Render
+- Auto-deploy on GitHub push
+
+---
+
+## Architecture
+React Frontend
+↓
+.NET API (this project)
+↓
+FastAPI AI Service
+↓
+ChromaDB (Vector DB)
+
+---
+
+## Author
+
+Developed as part of School AI Platform.
