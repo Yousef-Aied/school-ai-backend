@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SchoolPlatform.Api.Data;
+using SchoolPlatform.Api.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,10 @@ builder.Services.AddControllers();
 
 // EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+         options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+//options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
 
 // JWT Auth
 var jwt = builder.Configuration.GetSection("Jwt");
@@ -81,5 +85,94 @@ app.MapControllers();
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 app.Urls.Add($"http://0.0.0.0:{port}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+
+    if (!db.Students.Any())
+    {
+        db.Students.AddRange(
+
+            new Student
+            {
+                FullName = "Ahmed Ali",
+                GradeLevel = 10,
+                Age = 13,
+                Gender = "Male",
+                SchoolType = "Public",
+                InternetAccess = "Yes",
+                ExtraActivities = "No",
+                StudyMethod = "Self",
+                TravelTime = 10,
+
+                Metrics = new List<StudentMetric>
+                {
+                    new StudentMetric
+                    {
+                        StudyHours = 5,
+                        AttendancePercentage = 90,
+                        ExamScore = 85
+                    }
+                }
+            },
+
+            new Student
+            {
+                FullName = "Sara Mohamed",
+                GradeLevel = 8,
+                Age = 11,
+                Gender = "Female",
+                SchoolType = "Private",
+                InternetAccess = "Yes",
+                ExtraActivities = "Yes",
+                StudyMethod = "Group",
+                TravelTime = 15,
+
+                Metrics = new List<StudentMetric>
+                {
+                    new StudentMetric
+                    {
+                        StudyHours = 7,
+                        AttendancePercentage = 95,
+                        ExamScore = 92
+                    }
+                }
+            },
+
+            new Student
+            {
+                FullName = "Omar Hassan",
+                GradeLevel = 12,
+                Age = 15,
+                Gender = "Male",
+                SchoolType = "Public",
+                InternetAccess = "No",
+                ExtraActivities = "Yes",
+                StudyMethod = "Online",
+                TravelTime = 5,
+
+                Metrics = new List<StudentMetric>
+                {
+                    new StudentMetric
+                    {
+                        StudyHours = 3,
+                        AttendancePercentage = 70,
+                        ExamScore = 60
+                    }
+                }
+            }
+        );
+
+        db.SaveChanges();
+    }
+}
 
 app.Run();
