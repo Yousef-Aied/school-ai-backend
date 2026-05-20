@@ -36,19 +36,20 @@ builder.Services.AddAuthorization();
 // HttpClient
 builder.Services.AddHttpClient("AiService", client =>
 {
-    client.BaseAddress = new Uri("http://127.0.0.1:8000"); // FastAPI
+    //client.BaseAddress = new Uri("http://127.0.0.1:8000"); // FastAPI Local
+    client.BaseAddress = new Uri("https://ai-service-pj5r.onrender.com"); // FastAPI Render
 });
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+//.WithOrigins("http://localhost:5173")
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowVite",
         policy => policy
-            .WithOrigins("http://localhost:5173")
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
@@ -56,7 +57,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowVite");
+//app.UseCors("AllowVite");
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -72,5 +74,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.Run();
