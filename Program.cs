@@ -57,8 +57,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//app.UseCors("AllowVite");
-app.UseCors("AllowAll"); //AllowVite
+app.UseCors("AllowVite");
+
+//app.UseCors("AllowAll"); 
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
