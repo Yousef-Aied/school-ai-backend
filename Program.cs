@@ -47,8 +47,8 @@ builder.Services.AddSwaggerGen();
 //.WithOrigins("http://localhost:5173")
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowVite",
-        policy => policy
+    options.AddDefaultPolicy(policy =>
+        policy
             .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -57,7 +57,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowVite");
+app.UseCors();
+//app.UseCors("AllowVite");
 
 //app.UseCors("AllowAll"); 
 
