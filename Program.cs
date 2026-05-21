@@ -86,11 +86,8 @@ app.MapControllers();
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 app.Urls.Add($"http://0.0.0.0:{port}");
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
+
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -170,6 +167,32 @@ using (var scope = app.Services.CreateScope())
                 }
             }
         );
+
+        db.SaveChanges();
+    }
+
+
+    if (!db.Teachers.Any())
+    {
+        var teacher = new Teacher
+        {
+            FullName = "Test Teacher",
+            Email = "teacher@test.com"
+        };
+
+        db.Teachers.Add(teacher);
+        db.SaveChanges();
+
+        var students = db.Students.ToList();
+
+        foreach (var student in students)
+        {
+            db.TeacherStudents.Add(new TeacherStudent
+            {
+                TeacherId = teacher.TeacherId,
+                StudentId = student.StudentId
+            });
+        }
 
         db.SaveChanges();
     }
