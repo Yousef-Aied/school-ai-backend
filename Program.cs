@@ -10,7 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-// EF Core
+// HttpClient Factory
+builder.Services.AddHttpClient();
+
+// EF Core 
 builder.Services.AddDbContext<AppDbContext>(options =>
          options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
