@@ -14,7 +14,7 @@ namespace SchoolPlatform.Api.Models
         public int StudentId { get; set; }
 
         [JsonPropertyName("grade")]
-        public string Grade { get; set; } = "";
+        public int Grade { get; set; }
 
         [JsonPropertyName("subject")]
         public string Subject { get; set; } = "";
