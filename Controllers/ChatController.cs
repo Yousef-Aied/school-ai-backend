@@ -10,12 +10,12 @@ namespace SchoolPlatform.Api.Controllers
     [Route("api/chat")]
     public class ChatController : ControllerBase
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _aiClient;
         private readonly AppDbContext _db;
 
         public ChatController(IHttpClientFactory factory, AppDbContext db)
         {
-            _httpClient = factory.CreateClient();
+            _aiClient = factory.CreateClient("AiService");
             _db = db;
         }
 
@@ -39,7 +39,7 @@ namespace SchoolPlatform.Api.Controllers
 
                 Console.WriteLine($"Prediction: {prediction?.Level}");
 
-                var aiResponse = await _httpClient.PostAsJsonAsync(
+                var aiResponse = await _aiClient.PostAsJsonAsync(
                     "https://ai-service-pj5r.onrender.com/api/chat",
                     new
                     {
@@ -76,7 +76,7 @@ namespace SchoolPlatform.Api.Controllers
         {
             try
             {
-                var res = await _httpClient.GetAsync(
+                var res = await _aiClient.GetAsync(
                     $"https://school-ai-backend-2qd1.onrender.com/api/student/prediction?studentId={studentId}"
                 );
 
@@ -89,7 +89,7 @@ namespace SchoolPlatform.Api.Controllers
                     };
                 }
 
-                var json = await res.Content.ReadAsStringAsync();
+                var json = await res.Content.ReadAsStringAsync(); 
 
                 return JsonSerializer.Deserialize<PredictionResult>(
                     json,
