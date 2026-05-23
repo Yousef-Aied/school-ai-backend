@@ -22,52 +22,95 @@ namespace SchoolPlatform.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Chat([FromBody] ChatRequest req)
         {
-            // student
-            var student = await _db.Students
-                .FirstOrDefaultAsync(s => s.StudentId == req.StudentId);
+            try
+            {
+                Console.WriteLine("=== CHAT REQUEST ===");
 
-            if (student == null)
-                return NotFound("Student not found");
+                var student = await _db.Students
+                    .FirstOrDefaultAsync(s => s.StudentId == req.StudentId);
 
-            // prediction
-            var prediction = await GetPrediction(req.StudentId);
-
-            // send to AI
-            var aiResponse = await _httpClient.PostAsJsonAsync(
-                "https://ai-service-pj5r.onrender.com/api/chat",
-                new
+                if (student == null)
                 {
-                    conversation_id = req.ConversationId,
-                    message = req.Message,
-                    student_id = req.StudentId,
-                    student_name = student.FullName,
-                    grade = student.GradeLevel,
-                    subject = req.Subject,
-                    student_level = prediction.Level,
-                    predicted_score = prediction.PredictedScore
+                    Console.WriteLine("Student not found");
+                    return NotFound("Student not found");
                 }
-            );
 
-            var content = await aiResponse.Content.ReadAsStringAsync();
+                var prediction = await GetPrediction(req.StudentId);
 
-            return Content(content, "application/json");
+                Console.WriteLine($"Prediction: {prediction?.Level}");
+
+                var aiResponse = await _httpClient.PostAsJsonAsync(
+                    "https://ai-service-pj5r.onrender.com/api/chat",
+                    new
+                    {
+                        conversation_id = req.ConversationId,
+                        message = req.Message,
+                        student_id = req.StudentId,
+                        student_name = student.FullName,
+                        grade = student.GradeLevel,
+                        subject = req.Subject,
+                        student_level = prediction?.Level,
+                        predicted_score = prediction?.PredictedScore
+                    }
+                );
+
+                Console.WriteLine($"AI STATUS: {aiResponse.StatusCode}");
+
+                var content = await aiResponse.Content.ReadAsStringAsync();
+
+                Console.WriteLine("AI RESPONSE:");
+                Console.WriteLine(content);
+
+                return StatusCode((int)aiResponse.StatusCode, content);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("CHAT ERROR:");
+                Console.WriteLine(ex);
+
+                return StatusCode(500, ex.Message);
+            }
         }
 
         private async Task<PredictionResult> GetPrediction(int studentId)
         {
-            var res = await _httpClient.GetAsync(
-                $"https://school-ai-backend-2qd1.onrender.com/api/student/prediction?studentId={studentId}"
-            );
+            try
+            {
+                var res = await _httpClient.GetAsync(
+                    $"https://school-ai-backend-2qd1.onrender.com/api/student/prediction?studentId={studentId}"
+                );
 
-            var json = await res.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<PredictionResult>(
-                json,
-                new JsonSerializerOptions
+                if (!res.IsSuccessStatusCode)
                 {
-                    PropertyNameCaseInsensitive = true
+                    return new PredictionResult
+                    {
+                        Level = "Medium",
+                        PredictedScore = 70
+                    };
                 }
-            )!;
+
+                var json = await res.Content.ReadAsStringAsync();
+
+                return JsonSerializer.Deserialize<PredictionResult>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }
+                ) ?? new PredictionResult
+                {
+                    Level = "Medium",
+                    PredictedScore = 70
+                };
+            }
+            catch
+            {
+                return new PredictionResult
+                {
+                    Level = "Medium",
+                    PredictedScore = 70
+                };
+            }
         }
     }
 }
