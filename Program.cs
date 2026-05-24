@@ -44,7 +44,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpClient("AiService", client =>
 {
     //client.BaseAddress = new Uri("http://127.0.0.1:8000"); // FastAPI Local
-    client.BaseAddress = new Uri("https://ai-service-pj5r.onrender.com"); // FastAPI Render
+    client.BaseAddress = new Uri("https://school-ai-rag-production.up.railway.app"); // FastAPI Render
 });
 
 // Swagger

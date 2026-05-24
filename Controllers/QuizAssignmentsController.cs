@@ -128,8 +128,25 @@ namespace SchoolPlatform.Api.Controllers
             var client = _http.CreateClient("AiService");
             var response = await client.GetAsync($"/api/quiz/template/{quizAssignment.FastApiTemplateId}");
 
+            //if (!response.IsSuccessStatusCode)
+            //    return StatusCode((int)response.StatusCode, new { message = "Failed to fetch quiz template from FastAPI" });
+
             if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode, new { message = "Failed to fetch quiz template from FastAPI" });
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine("FASTAPI QUIZ ERROR:");
+                Console.WriteLine(error);
+
+                return StatusCode(
+                    (int)response.StatusCode,
+                    new
+                    {
+                        message = "FastAPI quiz generation failed",
+                        details = error
+                    }
+                );
+            }
 
             var template = await response.Content.ReadFromJsonAsync<QuizTemplateResponse>();
             if (template == null)
