@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SchoolPlatform.Api.Data;
 using SchoolPlatform.Api.Models;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace SchoolPlatform.Api.Controllers
 {
@@ -39,14 +40,34 @@ namespace SchoolPlatform.Api.Controllers
             var response = await client.PostAsJsonAsync("/api/quiz/template/generate", fastApiRequest);
 
             if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode, new { message = "FastAPI quiz generation failed" });
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine("FASTAPI ERROR:");
+                Console.WriteLine(error);
+
+                return StatusCode(
+                    (int)response.StatusCode,
+                    new
+                    {
+                        message = "FastAPI quiz generation failed",
+                        details = error
+                    });
+            }
 
             var raw = await response.Content.ReadAsStringAsync();
 
             Console.WriteLine("FASTAPI RAW RESPONSE:");
             Console.WriteLine(raw);
 
-            var template = await response.Content.ReadFromJsonAsync<QuizTemplateResponse>();
+            var template = JsonSerializer.Deserialize<QuizTemplateResponse>(
+                raw,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+
             if (template == null)
                 return BadRequest(new { message = "Invalid response from FastAPI" });
 
@@ -153,7 +174,20 @@ namespace SchoolPlatform.Api.Controllers
                 );
             }
 
-            var template = await response.Content.ReadFromJsonAsync<QuizTemplateResponse>();
+            //var template = await response.Content.ReadFromJsonAsync<QuizTemplateResponse>();
+            var raw = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine("RAW RESPONSE:");
+            Console.WriteLine(raw);
+
+            var template = JsonSerializer.Deserialize<QuizTemplateResponse>(
+                raw,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+
             if (template == null)
                 return BadRequest(new { message = "Invalid template response from FastAPI" });
 
