@@ -40,7 +40,7 @@ namespace SchoolPlatform.Api.Controllers
                 Console.WriteLine($"Prediction: {prediction?.Level}");
 
                 var aiResponse = await _aiClient.PostAsJsonAsync(
-                    "https://ai-service-pj5r.onrender.com/api/chat",
+                    "/api/chat",
                     new
                     {
                         conversation_id = req.ConversationId,

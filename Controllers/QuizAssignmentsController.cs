@@ -41,6 +41,11 @@ namespace SchoolPlatform.Api.Controllers
             if (!response.IsSuccessStatusCode)
                 return StatusCode((int)response.StatusCode, new { message = "FastAPI quiz generation failed" });
 
+            var raw = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine("FASTAPI RAW RESPONSE:");
+            Console.WriteLine(raw);
+
             var template = await response.Content.ReadFromJsonAsync<QuizTemplateResponse>();
             if (template == null)
                 return BadRequest(new { message = "Invalid response from FastAPI" });
